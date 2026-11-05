@@ -11,7 +11,7 @@ export default function Forma() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     // no agregar si el titulo esta vacio
-    if (titulo == "") return
+    if (!titulo.trim()) return
     agregarTarea(titulo, descripcion)
     setTitulo("")
     setDescripcion("")
@@ -22,8 +22,10 @@ export default function Forma() {
       <h2>Agregar tarea</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Titulo:</label>
+          <label htmlFor="titulo">Titulo:</label>
           <input
+            id="titulo"
+            required
             type="text"
             value={titulo}
             onChange={e => setTitulo(e.target.value)}
@@ -32,8 +34,9 @@ export default function Forma() {
           />
         </div>
         <div>
-          <label>Descripcion:</label>
+          <label htmlFor="descripcion">Descripcion:</label>
           <textarea
+            id="descripcion"
             value={descripcion}
             onChange={e => setDescripcion(e.target.value)}
             placeholder="Escribe la descripcion"

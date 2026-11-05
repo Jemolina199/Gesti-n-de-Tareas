@@ -1,56 +1,36 @@
 "use client"
 
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useState, type ReactNode } from "react"
 
-// tipo para cada tarea
-type Tarea = {
-  id: number
-  titulo: string
-  descripcion: string
-  estado: string
+export type Estado = "Pendiente" | "En Proceso" | "Completada"
+export type Tarea = { id: string; titulo: string; descripcion: string; estado: Estado }
+type TaskContextValue = {
+  tareas: Tarea[]
+  agregarTarea: (titulo: string, descripcion: string) => void
+  cambiarEstado: (id: string, nuevoEstado: Estado) => void
+  eliminarTarea: (id: string) => void
 }
+const TaskContext = createContext<TaskContextValue | undefined>(undefined)
 
-// aqui creo el contexto
-const TaskContext = createContext<any>(null)
-
-export function TaskProvider({ children }: { children: React.ReactNode }) {
+export function TaskProvider({ children }: { children: ReactNode }) {
   const [tareas, setTareas] = useState<Tarea[]>([])
-
-  // funcion para agregar tarea
   function agregarTarea(titulo: string, descripcion: string) {
+    if (!titulo.trim()) return
     const nueva: Tarea = {
-      id: Date.now(),
-      titulo,
-      descripcion,
-      estado: "Pendiente"
+      id: crypto.randomUUID(), titulo: titulo.trim(), descripcion: descripcion.trim(), estado: "Pendiente"
     }
-    setTareas([...tareas, nueva])
+    setTareas(actuales => [...actuales, nueva])
   }
-
-  // funcion para cambiar el estado
-  function cambiarEstado(id: number, nuevoEstado: string) {
-    const actualizadas = tareas.map(t => {
-      if (t.id === id) {
-        return { ...t, estado: nuevoEstado }
-      }
-      return t
-    })
-    setTareas(actualizadas)
+  function cambiarEstado(id: string, nuevoEstado: Estado) {
+    setTareas(actuales => actuales.map(t => t.id === id ? { ...t, estado: nuevoEstado } : t))
   }
-
-  // funcion para eliminar
-  function eliminarTarea(id: number) {
-    const filtradas = tareas.filter(t => t.id !== id)
-    setTareas(filtradas)
+  function eliminarTarea(id: string) {
+    setTareas(actuales => actuales.filter(t => t.id !== id))
   }
-
-  return (
-    <TaskContext.Provider value={{ tareas, agregarTarea, cambiarEstado, eliminarTarea }}>
-      {children}
-    </TaskContext.Provider>
-  )
+  return <TaskContext.Provider value={{ tareas, agregarTarea, cambiarEstado, eliminarTarea }}>{children}</TaskContext.Provider>
 }
-
 export function useTareas() {
-  return useContext(TaskContext)
+  const context = useContext(TaskContext)
+  if (!context) throw new Error("useTareas requiere TaskProvider")
+  return context
 }

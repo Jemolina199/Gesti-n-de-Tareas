@@ -1,8 +1,8 @@
 "use client"
 
-import { useTareas } from "../context/context"
+import { useTareas, type Estado } from "../context/context"
 
-const estados = ["Pendiente", "En Proceso", "Completada"]
+const estados: Estado[] = ["Pendiente", "En Proceso", "Completada"]
 
 export default function Tabla() {
   const { tareas, cambiarEstado, eliminarTarea } = useTareas()
@@ -23,7 +23,7 @@ export default function Tabla() {
         </tr>
       </thead>
       <tbody>
-        {tareas.map((tarea: any) => (
+        {tareas.map((tarea) => (
           <tr key={tarea.id}>
             <td style={{ border: "1px solid #ccc", padding: "8px" }}>{tarea.id}</td>
             <td style={{ border: "1px solid #ccc", padding: "8px" }}>{tarea.titulo}</td>
@@ -31,7 +31,7 @@ export default function Tabla() {
             <td style={{ border: "1px solid #ccc", padding: "8px" }}>
               <select
                 value={tarea.estado}
-                onChange={e => cambiarEstado(tarea.id, e.target.value)}
+                onChange={e => cambiarEstado(tarea.id, e.target.value as Estado)}
               >
                 {estados.map(e => (
                   <option key={e} value={e}>{e}</option>
